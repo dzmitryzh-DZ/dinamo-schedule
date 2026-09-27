@@ -1,4 +1,5 @@
 import type { MatchInfo, TeamItem, TeamMark } from "./types";
+import { TEAM_LOGOS } from "./teamLogos";
 
 export const TEAM_MARKS: TeamMark[] = [
   "letter",
@@ -23,7 +24,7 @@ export const TEAM_MARKS: TeamMark[] = [
   "ice",
 ];
 
-export const DEFAULT_TEAMS: TeamItem[] = [
+const BASE_TEAMS: TeamItem[] = [
   { id: "team-adm", abbr: "ADM", ru: "Адмирал", en: "Admiral", color: "#0a3161", color2: "#f47b20", mark: "anchor" },
   { id: "team-akb", abbr: "AKB", ru: "Ак Барс", en: "Ak Bars", color: "#007a3d", color2: "#e31e24", mark: "bars" },
   { id: "team-amu", abbr: "AMU", ru: "Амур", en: "Amur", color: "#f15a22", color2: "#111111", mark: "hawk" },
@@ -47,6 +48,10 @@ export const DEFAULT_TEAMS: TeamItem[] = [
   { id: "team-tor", abbr: "TOR", ru: "Торпедо", en: "Torpedo", color: "#00a0b0", color2: "#ffffff", mark: "bolt" },
   { id: "team-trk", abbr: "TRK", ru: "Трактор", en: "Traktor", color: "#f5c518", color2: "#111111", mark: "gear" },
 ];
+
+export const DEFAULT_TEAMS: TeamItem[] = BASE_TEAMS.map((team) =>
+  TEAM_LOGOS[team.id] ? { ...team, logo: TEAM_LOGOS[team.id] } : team
+);
 
 export function teamLabel(team: TeamItem, lang: "ru" | "en"): string {
   return lang === "ru" ? team.ru || team.en : team.en || team.ru;

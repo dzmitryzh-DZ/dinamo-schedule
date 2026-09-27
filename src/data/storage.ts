@@ -775,7 +775,7 @@ function normalizeSplits(value: unknown): SplitItem[] {
 function normalizeTeams(value: unknown): TeamItem[] {
   return normalizeLibraryList<TeamItem>(value, {
     defaults: () => DEFAULT_TEAMS,
-    build: (raw, { usedIds }) => {
+    build: (raw, { usedIds, defaults }) => {
       const abbr =
         typeof raw.abbr === "string"
           ? raw.abbr.trim().slice(0, 3).toUpperCase()
@@ -799,7 +799,9 @@ function normalizeTeams(value: unknown): TeamItem[] {
         color2: normalizeHexColor(raw.color2, "#ffffff"),
         mark,
       };
-      const logo = normalizeLogo(raw.logo);
+      // Свой логотип приоритетнее; иначе — встроенный логотип команды.
+      const fallback = defaults.find((entry) => entry.id === id);
+      const logo = normalizeLogo(raw.logo) ?? fallback?.logo;
       if (logo) team.logo = logo;
       return team;
     },
