@@ -229,6 +229,21 @@ export async function pushSharedProject(
 
   const meta = await getFileMeta();
   if (meta && meta.revision !== baseRev) {
+    // Ревизия другая — но, возможно, это наш же прошлый upload, чью
+    // ревизию мы не успели получить (Диск обновляет её асинхронно).
+    // Если содержимое файла совпадает с тем, что мы пушим, — не конфликт.
+    try {
+      const raw = await downloadFileText();
+      const parsed = parseProjectFile(raw);
+      if (
+        !parsed.unsupported &&
+        JSON.stringify(parsed.store) === JSON.stringify(store)
+      ) {
+        return { conflict: false, rev: meta.revision, savedAt: meta.modified };
+      }
+    } catch {
+      /* не удалось прочитать — считаем конфликтом */
+    }
     return { conflict: true, rev: meta.revision };
   }
 
@@ -237,7 +252,7 @@ export async function pushSharedProject(
 
   // Upload на Диске асинхронный: ревизия может появиться не сразу.
   let rev: number | null = null;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     try {
       const next = await getFileMeta();
       if (next && next.revision !== null && next.revision !== meta?.revision) {
@@ -247,7 +262,7 @@ export async function pushSharedProject(
     } catch {
       break;
     }
-    await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
   }
 
   rememberSharedAt(null);
