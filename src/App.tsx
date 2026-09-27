@@ -3,15 +3,13 @@ import { Toolbar } from "./components/Toolbar";
 import { ScheduleSheet } from "./components/ScheduleSheet";
 import { GroupsSheet } from "./components/GroupsSheet";
 import { MonthCalendar } from "./components/MonthCalendar";
+import { LibrarySheet } from "./components/LibrarySheet";
 import { LoginGate } from "./components/LoginGate";
 import { SettingsDialog } from "./components/SettingsDialog";
-import {
-  emptyScheduleRow,
-  getActiveDay,
-  templateFromDay,
-} from "./data/storage";
+import { emptyScheduleRow, getActiveDay } from "./data/storage";
 import type { GroupKey } from "./data/types";
 import { useScheduleStore } from "./hooks/useScheduleStore";
+import { useLibraryActions } from "./hooks/useLibraryActions";
 import { useDayActions } from "./hooks/useDayActions";
 import { isAuthenticated } from "./utils/auth";
 import { formatScheduleForMessenger } from "./utils/localize";
@@ -39,11 +37,11 @@ function ScheduleApp() {
     undo,
     redo,
     flash,
-    mutateStore,
     handleLangChange,
     handleViewChange,
     handlePreviewToggle,
     handleDayChange,
+    handleReset,
     updateActiveDay,
   } = store;
 
@@ -51,9 +49,11 @@ function ScheduleApp() {
   const groupsRef = useRef<HTMLElement | null>(null);
   const dayPageRef = useRef<HTMLDivElement | null>(null);
   const monthRef = useRef<HTMLElement | null>(null);
+  const libraryRef = useRef<HTMLElement | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const day = getActiveDay(data);
+  const library = useLibraryActions(store);
   const dayActions = useDayActions(store);
 
   const whatsappText = useCallback(
@@ -81,26 +81,6 @@ function ScheduleApp() {
   const handleWhatsAppOpen = useCallback(() => {
     openInWhatsApp(whatsappText());
   }, [whatsappText]);
-
-  const saveAsTemplate = useCallback(
-    (name: string) => {
-      const trimmed = name.trim();
-      if (!trimmed) {
-        flash(ui.templateNameRequired);
-        return;
-      }
-      mutateStore(
-        (current) => {
-          if (!current.templates) current.templates = [];
-          const active = getActiveDay(current);
-          current.templates.push(templateFromDay(active, trimmed, trimmed));
-          return current;
-        },
-        { message: ui.templateSaved.replace("{name}", trimmed) }
-      );
-    },
-    [mutateStore, flash, ui.templateNameRequired, ui.templateSaved]
-  );
 
   return (
     <>
@@ -156,6 +136,34 @@ function ScheduleApp() {
             onSetMonthKindLogo={dayActions.setMonthKindLogo}
           />
         </div>
+      ) : view === "library" ? (
+        <div className="document document-library">
+          <LibrarySheet
+            ui={ui}
+            lang={lang}
+            activities={data.activities}
+            splits={data.splits}
+            teams={data.teams ?? []}
+            templates={data.templates ?? []}
+            roster={data.roster}
+            sheetRef={libraryRef}
+            onAddActivity={library.handleAddActivity}
+            onUpdateActivity={library.handleUpdateActivity}
+            onRemoveActivity={library.handleRemoveActivity}
+            onAddSplit={library.handleAddSplit}
+            onUpdateSplit={library.handleUpdateSplit}
+            onRemoveSplit={library.handleRemoveSplit}
+            onAddTeam={library.handleAddTeam}
+            onUpdateTeam={library.handleUpdateTeam}
+            onRemoveTeam={library.handleRemoveTeam}
+            onUpdateTemplate={library.handleUpdateTemplate}
+            onRemoveTemplate={library.handleRemoveTemplate}
+            onAddToRoster={library.handleAddToRoster}
+            onRemoveFromRoster={library.handleRemoveFromRoster}
+            onUpdateRoster={library.handleUpdateRoster}
+            onReset={handleReset}
+          />
+        </div>
       ) : (
         <div className="document" id="page" ref={dayPageRef}>
           <ScheduleSheet
@@ -174,7 +182,7 @@ function ScheduleApp() {
             onAddNext10Days={dayActions.addNext10Days}
             onPullFromDay={dayActions.pullFromDay}
             onPullFromTemplate={dayActions.pullFromTemplate}
-            onSaveAsTemplate={saveAsTemplate}
+            onSaveAsTemplate={library.saveAsTemplate}
             onRemoveDay={dayActions.removeDay}
             onDateChange={(value) =>
               updateActiveDay(
@@ -295,7 +303,14 @@ function ScheduleApp() {
       <p className="app-credit no-print">{ui.creator}</p>
 
       {settingsOpen && (
-        <SettingsDialog ui={ui} onClose={() => setSettingsOpen(false)} />
+        <SettingsDialog
+          ui={ui}
+          onClose={() => setSettingsOpen(false)}
+          onOpenLibrary={() => {
+            setSettingsOpen(false);
+            handleViewChange("library");
+          }}
+        />
       )}
     </>
   );

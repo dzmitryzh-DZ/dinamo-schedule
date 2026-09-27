@@ -10,10 +10,11 @@ import { changePassword, logout } from "../utils/auth";
 type Props = {
   ui: UiStrings;
   onClose: () => void;
+  onOpenLibrary: () => void;
 };
 
-/** Настройки: токен Яндекс.Диска, смена пароля, выход. */
-export function SettingsDialog({ ui, onClose }: Props) {
+/** Настройки: токен Яндекс.Диска, смена пароля, справочники, выход. */
+export function SettingsDialog({ ui, onClose, onOpenLibrary }: Props) {
   const [token, setToken] = useState(getYandexToken());
   const [tokenMessage, setTokenMessage] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -123,6 +124,12 @@ export function SettingsDialog({ ui, onClose }: Props) {
           </div>
           {passwordMessage && <p className="dialog-message">{passwordMessage}</p>}
         </form>
+
+        <div className="dialog-section">
+          <button type="button" className="btn" onClick={onOpenLibrary}>
+            {ui.tabLibrary} →
+          </button>
+        </div>
 
         <div className="dialog-section">
           <button type="button" className="btn btn-danger" onClick={handleLogout}>

@@ -207,14 +207,16 @@ export function Toolbar({
             </button>
           </>
         )}
-        <button
-          type="button"
-          className={`btn${preview ? " is-active" : ""}`}
-          aria-pressed={preview}
-          onClick={onPreviewToggle}
-        >
-          {ui.preview}
-        </button>
+        {view !== "library" && (
+          <button
+            type="button"
+            className={`btn${preview ? " is-active" : ""}`}
+            aria-pressed={preview}
+            onClick={onPreviewToggle}
+          >
+            {ui.preview}
+          </button>
+        )}
         <button
           type="button"
           className="btn"
