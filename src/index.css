@@ -2724,3 +2724,9 @@ body.print-month .month-cell.has-train {
     display: none !important;
   }
 }
+
+/* Ссылка-кнопка (получение токена) */
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+}

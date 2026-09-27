@@ -85,6 +85,16 @@ export function SettingsDialog({ ui, onClose, onOpenLibrary }: Props) {
           />
           <p className="dialog-hint">{ui.yandexTokenHint}</p>
           <div className="dialog-actions">
+            <a
+              className="btn"
+              href="https://yandex.ru/dev/disk/poligon/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {ui.tokenGet} ↗
+            </a>
+          </div>
+          <div className="dialog-actions">
             <button type="submit" className="btn btn-primary">
               {ui.tokenSave}
             </button>

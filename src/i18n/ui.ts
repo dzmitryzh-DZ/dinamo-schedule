@@ -184,6 +184,7 @@ export type UiStrings = {
   yandexTokenLabel: string;
   yandexTokenHint: string;
   tokenSave: string;
+  tokenGet: string;
   tokenSaved: string;
   tokenClear: string;
   tokenPlaceholder: string;
@@ -394,6 +395,7 @@ const RU: UiStrings = {
   yandexTokenHint:
     "OAuth-токен нужен для сохранения расписания на Яндекс.Диск (файл app:/schedule.json). Получить: yandex.ru/dev/disk/poligon → «Получить OAuth-токен». Токен хранится только в этом браузере.",
   tokenSave: "Сохранить токен",
+  tokenGet: "Получить токен",
   tokenSaved: "Токен сохранён. Перезагрузка…",
   tokenClear: "Удалить токен",
   tokenPlaceholder: "Вставьте OAuth-токен",
@@ -604,6 +606,7 @@ const EN: UiStrings = {
   yandexTokenHint:
     "An OAuth token is used to save the schedule to Yandex Disk (app:/schedule.json). Get one at yandex.ru/dev/disk/poligon → “Get OAuth token”. The token is stored only in this browser.",
   tokenSave: "Save token",
+  tokenGet: "Get token",
   tokenSaved: "Token saved. Reloading…",
   tokenClear: "Remove token",
   tokenPlaceholder: "Paste the OAuth token",
