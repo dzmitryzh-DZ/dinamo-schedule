@@ -185,6 +185,11 @@ export type UiStrings = {
   yandexTokenHint: string;
   tokenSave: string;
   tokenGet: string;
+  tokenCheck: string;
+  tokenCheckOk: string;
+  tokenCheckInvalid: string;
+  tokenCheckNone: string;
+  tokenCheckUnreachable: string;
   tokenSaved: string;
   tokenClear: string;
   tokenPlaceholder: string;
@@ -396,6 +401,12 @@ const RU: UiStrings = {
     "OAuth-токен нужен для сохранения расписания на Яндекс.Диск (файл app:/schedule.json). Получить: yandex.ru/dev/disk/poligon → «Получить OAuth-токен». Токен хранится только в этом браузере.",
   tokenSave: "Сохранить токен",
   tokenGet: "Получить токен",
+  tokenCheck: "Проверить соединение",
+  tokenCheckOk: "Соединение есть — автосохранение на Яндекс.Диск активно.",
+  tokenCheckInvalid:
+    "Яндекс отклонил токен. Скопируйте его заново целиком и сохраните.",
+  tokenCheckNone: "Сначала вставьте и сохраните токен.",
+  tokenCheckUnreachable: "Нет связи с Яндекс.Диском. Проверьте интернет.",
   tokenSaved: "Токен сохранён. Перезагрузка…",
   tokenClear: "Удалить токен",
   tokenPlaceholder: "Вставьте OAuth-токен",
@@ -607,6 +618,11 @@ const EN: UiStrings = {
     "An OAuth token is used to save the schedule to Yandex Disk (app:/schedule.json). Get one at yandex.ru/dev/disk/poligon → “Get OAuth token”. The token is stored only in this browser.",
   tokenSave: "Save token",
   tokenGet: "Get token",
+  tokenCheck: "Test connection",
+  tokenCheckOk: "Connected — autosave to Yandex Disk is active.",
+  tokenCheckInvalid: "Yandex rejected the token. Copy it again in full and save.",
+  tokenCheckNone: "Paste and save a token first.",
+  tokenCheckUnreachable: "Cannot reach Yandex Disk. Check your connection.",
   tokenSaved: "Token saved. Reloading…",
   tokenClear: "Remove token",
   tokenPlaceholder: "Paste the OAuth token",

@@ -17,6 +17,21 @@ export const SHARED_AT_KEY = "dinamo-schedule-shared-at";
 export const LOCAL_AT_KEY = "dinamo-schedule-local-at";
 export const CONFLICT_KEY = "dinamo-schedule-conflict";
 
+/** Проверка токена: запрос сведений о диске. */
+export type TokenCheck = "ok" | "no-token" | "invalid" | "unreachable";
+
+export async function checkYandexToken(): Promise<TokenCheck> {
+  if (!hasYandexToken()) return "no-token";
+  try {
+    const res = await apiFetch(`${API_BASE}/`);
+    if (res.ok) return "ok";
+    if (res.status === 401 || res.status === 403) return "invalid";
+    return "unreachable";
+  } catch {
+    return "unreachable";
+  }
+}
+
 export type SyncState =
   | "idle"
   | "synced"

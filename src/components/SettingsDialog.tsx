@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { UiStrings } from "../i18n/ui";
 import {
+  checkYandexToken,
   getYandexToken,
   hasYandexToken,
   setYandexToken,
@@ -17,6 +18,7 @@ type Props = {
 export function SettingsDialog({ ui, onClose, onOpenLibrary }: Props) {
   const [token, setToken] = useState(getYandexToken());
   const [tokenMessage, setTokenMessage] = useState("");
+  const [checking, setChecking] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [nextPassword, setNextPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
@@ -34,6 +36,17 @@ export function SettingsDialog({ ui, onClose, onOpenLibrary }: Props) {
     setToken("");
     setTokenMessage(ui.tokenSaved);
     window.setTimeout(() => window.location.reload(), 600);
+  }
+
+  async function handleTokenCheck() {
+    setChecking(true);
+    setTokenMessage("");
+    const result = await checkYandexToken();
+    setChecking(false);
+    if (result === "ok") setTokenMessage(ui.tokenCheckOk);
+    else if (result === "invalid") setTokenMessage(ui.tokenCheckInvalid);
+    else if (result === "no-token") setTokenMessage(ui.tokenCheckNone);
+    else setTokenMessage(ui.tokenCheckUnreachable);
   }
 
   async function handlePasswordSubmit(event: FormEvent) {
@@ -97,6 +110,14 @@ export function SettingsDialog({ ui, onClose, onOpenLibrary }: Props) {
           <div className="dialog-actions">
             <button type="submit" className="btn btn-primary">
               {ui.tokenSave}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              disabled={checking}
+              onClick={handleTokenCheck}
+            >
+              {checking ? "…" : ui.tokenCheck}
             </button>
             {hasYandexToken() && (
               <button type="button" className="btn" onClick={handleTokenClear}>
