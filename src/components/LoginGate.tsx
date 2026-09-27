@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { getUi } from "../i18n/ui";
 import { readLang } from "../hooks/useScheduleStore";
 import { checkPassword, markAuthenticated } from "../utils/auth";
+import zubrLogoUrl from "../assets/zubr-logo.png";
 
 type Props = {
   onSuccess: () => void;
@@ -34,7 +35,7 @@ export function LoginGate({ onSuccess }: Props) {
       <form className={`login-card${error ? " has-error" : ""}`} onSubmit={handleSubmit}>
         <img
           className="login-logo"
-          src={`${import.meta.env.BASE_URL}logo.png`}
+          src={zubrLogoUrl}
           alt="HC Dinamo-Minsk"
         />
         <h1 className="login-title">{ui.loginTitle}</h1>
