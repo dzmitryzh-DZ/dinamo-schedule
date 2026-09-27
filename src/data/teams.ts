@@ -36,7 +36,6 @@ const BASE_TEAMS: TeamItem[] = [
   { id: "team-lad", abbr: "LAD", ru: "Лада", en: "Lada", color: "#1565c0", color2: "#ffffff", mark: "wheel" },
   { id: "team-lok", abbr: "LOK", ru: "Локомотив", en: "Lokomotiv", color: "#c8102e", color2: "#1b5e20", mark: "wheel" },
   { id: "team-mmg", abbr: "MMG", ru: "Металлург Мг", en: "Metallurg Mg", color: "#f47321", color2: "#1a365d", mark: "shield" },
-  { id: "team-mm2", abbr: "MM2", ru: "MM2", en: "MM2", color: "#455a64", color2: "#90caf9", mark: "ice" },
   { id: "team-nfh", abbr: "NFH", ru: "Нефтехимик", en: "Neftekhimik", color: "#5b8c3e", color2: "#f5c518", mark: "flame" },
   { id: "team-sal", abbr: "SAL", ru: "Салават Юлаев", en: "Salavat Yulaev", color: "#2e7d32", color2: "#ffffff", mark: "star" },
   { id: "team-sev", abbr: "SEV", ru: "Северсталь", en: "Severstal", color: "#f2c200", color2: "#0a3161", mark: "bolt" },

@@ -776,6 +776,8 @@ function normalizeTeams(value: unknown): TeamItem[] {
   return normalizeLibraryList<TeamItem>(value, {
     defaults: () => DEFAULT_TEAMS,
     build: (raw, { usedIds, defaults }) => {
+      // Удалённая из приложения заглушка: вычищаем из старых сохранений.
+      if (raw.id === "team-mm2") return null;
       const abbr =
         typeof raw.abbr === "string"
           ? raw.abbr.trim().slice(0, 3).toUpperCase()
