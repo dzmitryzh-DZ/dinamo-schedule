@@ -1,4 +1,5 @@
 import type { UiStrings } from "../i18n/ui";
+import zubrLogoUrl from "../assets/zubr-logo.png";
 
 type Props = {
   ui: UiStrings;
@@ -18,7 +19,7 @@ export function DocumentHeader({
   return (
     <header className="header">
       <div className="header-left">
-        <img className="logo" src="/logo.png" alt={ui.club} width={56} height={56} />
+        <img className="logo" src={zubrLogoUrl} alt={ui.club} width={56} height={56} />
         <div className="titles">
           <div className="club">{ui.club}</div>
           <div className="doc-title">{title}</div>

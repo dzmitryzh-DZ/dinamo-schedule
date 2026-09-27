@@ -309,7 +309,7 @@ export function MonthCalendar({
       {watermark ? (
         <img
           className="month-watermark"
-          src="/zubr-watermark.png"
+          src={`${import.meta.env.BASE_URL}zubr-watermark.png`}
           alt=""
           aria-hidden="true"
         />
