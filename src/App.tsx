@@ -14,11 +14,8 @@ import type { GroupKey } from "./data/types";
 import { useScheduleStore } from "./hooks/useScheduleStore";
 import { useDayActions } from "./hooks/useDayActions";
 import { isAuthenticated } from "./utils/auth";
-import {
-  copyTextToClipboard,
-  formatDayForWhatsApp,
-  openInWhatsApp,
-} from "./utils/whatsapp";
+import { formatScheduleForMessenger } from "./utils/localize";
+import { copyTextToClipboard, openInWhatsApp } from "./utils/whatsapp";
 
 export default function App() {
   const [authed, setAuthed] = useState(isAuthenticated);
@@ -60,8 +57,15 @@ function ScheduleApp() {
   const dayActions = useDayActions(store);
 
   const whatsappText = useCallback(
-    () => formatDayForWhatsApp(getActiveDay(data), data.roster, lang),
-    [data, lang]
+    () => {
+      const active = getActiveDay(data);
+      return formatScheduleForMessenger(
+        active.schedule,
+        ui.titleBilingual,
+        active.date
+      );
+    },
+    [data, ui.titleBilingual]
   );
 
   const handleWhatsAppCopy = useCallback(async () => {
