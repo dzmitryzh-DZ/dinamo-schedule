@@ -21,6 +21,7 @@ type Props = {
   lang: Lang;
   editing: boolean;
   date: string;
+  gameDay?: boolean;
   schedule: ScheduleRow[];
   activities: ActivityItem[];
   splits: SplitItem[];
@@ -29,6 +30,7 @@ type Props = {
   activeDayId: string;
   sheetRef: RefObject<HTMLElement | null>;
   onDateChange: (value: string) => void;
+  onGameDayChange?: (value: boolean) => void;
   onRowChange: (index: number, field: keyof ScheduleRow, value: string) => void;
   onRemoveRow: (index: number) => void;
   onMoveRow: (from: number, to: number) => void;
@@ -48,6 +50,7 @@ export function ScheduleSheet({
   lang,
   editing,
   date,
+  gameDay,
   schedule,
   activities,
   splits,
@@ -56,6 +59,7 @@ export function ScheduleSheet({
   activeDayId,
   sheetRef,
   onDateChange,
+  onGameDayChange,
   onRowChange,
   onRemoveRow,
   onMoveRow,
@@ -277,6 +281,8 @@ export function ScheduleSheet({
         date={date}
         editing={editing}
         onDateChange={onDateChange}
+        gameDay={gameDay}
+        onGameDayChange={onGameDayChange}
       />
       <div className="content">
         <div className="section-header">

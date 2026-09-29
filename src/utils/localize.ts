@@ -90,11 +90,14 @@ export function bilingualPair(ru: string, en: string): string {
 export function formatScheduleForMessenger(
   rows: ScheduleRow[],
   title: string,
-  date: string
+  date: string,
+  gameDayLabel = ""
 ): string {
   const lines: string[] = [];
   const header = date ? `${title} — ${date}` : title;
-  lines.push(`*${header}*`, "");
+  lines.push(`*${header}*`);
+  if (gameDayLabel) lines.push(gameDayLabel);
+  lines.push("");
 
   for (const row of rows) {
     const time = row.time.trim();

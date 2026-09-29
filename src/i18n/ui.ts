@@ -9,6 +9,8 @@ export type UiStrings = {
   print: string;
   pdf: string;
   preview: string;
+  gameDayLabel: string;
+  gameDayBilingual: string;
   copySchedule: string;
   copyScheduleDone: string;
   copyScheduleError: string;
@@ -216,6 +218,8 @@ const RU: UiStrings = {
   print: "Печать",
   pdf: "Сохранить PDF",
   preview: "Превью",
+  gameDayLabel: "Игровой день",
+  gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Копировать для WhatsApp",
   copyScheduleDone: "Расписание скопировано.",
   copyScheduleError: "Не удалось скопировать расписание.",
@@ -433,6 +437,8 @@ const EN: UiStrings = {
   print: "Print",
   pdf: "Save PDF",
   preview: "Preview",
+  gameDayLabel: "Game day",
+  gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Copy for WhatsApp",
   copyScheduleDone: "Schedule copied.",
   copyScheduleError: "Could not copy schedule.",

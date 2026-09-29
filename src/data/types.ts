@@ -45,6 +45,8 @@ export type TrainingDay = {
   /** Custom groups section label. Falls back to ui.groupsLabel. */
   groupsLabelRu?: string;
   groupsLabelEn?: string;
+  /** Game day: the schedule header shows the «ИГРОВОЙ ДЕНЬ / GAME DAY» line. */
+  gameDay?: boolean;
 };
 
 /** Named reusable day schedule (and groups) snapshot. */

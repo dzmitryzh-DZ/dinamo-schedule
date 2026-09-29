@@ -7,6 +7,10 @@ type Props = {
   date: string;
   editing?: boolean;
   onDateChange?: (value: string) => void;
+  /** Показывать строку «ИГРОВОЙ ДЕНЬ / GAME DAY» под названием документа. */
+  gameDay?: boolean;
+  /** Если задан и режим редактирования — рядом с названием появляется галочка. */
+  onGameDayChange?: (value: boolean) => void;
 };
 
 export function DocumentHeader({
@@ -15,6 +19,8 @@ export function DocumentHeader({
   date,
   editing = false,
   onDateChange,
+  gameDay = false,
+  onGameDayChange,
 }: Props) {
   return (
     <header className="header">
@@ -23,7 +29,18 @@ export function DocumentHeader({
         <div className="titles">
           <div className="club">{ui.club}</div>
           <div className="doc-title">{title}</div>
+          {gameDay && <div className="game-day-line">{ui.gameDayBilingual}</div>}
         </div>
+        {editing && onGameDayChange && (
+          <label className="game-day-toggle no-print">
+            <input
+              type="checkbox"
+              checked={gameDay}
+              onChange={(e) => onGameDayChange(e.target.checked)}
+            />
+            <span>{ui.gameDayLabel}</span>
+          </label>
+        )}
       </div>
       <div className="date-block">
         <div className="date-label">{ui.dateLabel}</div>

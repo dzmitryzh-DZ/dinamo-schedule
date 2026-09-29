@@ -710,3 +710,105 @@
     left: 0.32rem;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Игровой день: галочка в шапке и строка «ИГРОВОЙ ДЕНЬ / GAME DAY»    */
+/* ------------------------------------------------------------------ */
+
+.game-day-line {
+  display: inline-block;
+  margin-top: 0.45rem;
+  padding: 0.18rem 0.7rem;
+  font-family: Manrope, sans-serif;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: rgba(126, 197, 239, 0.2);
+  border: 1px solid rgba(126, 197, 239, 0.6);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.game-day-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.6rem;
+  font-family: Manrope, sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+
+.game-day-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.game-day-toggle:has(input:checked) {
+  color: var(--white);
+  background: rgba(91, 178, 232, 0.24);
+  border-color: var(--ice);
+}
+
+.game-day-toggle input {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  border: 2px solid var(--ice-bright);
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.game-day-toggle input:checked {
+  background: var(--ice);
+  border-color: var(--ice);
+}
+
+.game-day-toggle input:checked::after {
+  content: "";
+  width: 0.3rem;
+  height: 0.58rem;
+  border: solid #061018;
+  border-width: 0 2px 2px 0;
+  transform: translate(0, -1px) rotate(45deg);
+}
+
+.game-day-toggle input:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: 2px;
+}
+
+@media screen and (max-width: 720px) {
+  .header-left {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .game-day-line {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    padding-inline: 0.55rem;
+  }
+
+  .game-day-toggle {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-left: 0;
+  }
+}

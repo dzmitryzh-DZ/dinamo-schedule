@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, type RefObject } from "react";
 import { Toolbar } from "./components/Toolbar";
 import { ScheduleSheet } from "./components/ScheduleSheet";
 import { GroupsSheet } from "./components/GroupsSheet";
@@ -14,6 +14,11 @@ import { useDayActions } from "./hooks/useDayActions";
 import { isAuthenticated } from "./utils/auth";
 import { formatScheduleForMessenger } from "./utils/localize";
 import { copyTextToClipboard, openInWhatsApp } from "./utils/whatsapp";
+
+type DaySheetRefs = {
+  schedule: RefObject<HTMLElement | null>;
+  groups: RefObject<HTMLElement | null>;
+};
 
 export default function App() {
   const [authed, setAuthed] = useState(isAuthenticated);
@@ -62,10 +67,11 @@ function ScheduleApp() {
       return formatScheduleForMessenger(
         active.schedule,
         ui.titleBilingual,
-        active.date
+        active.date,
+        active.gameDay === true ? ui.gameDayBilingual : ""
       );
     },
-    [data, ui.titleBilingual]
+    [data, ui.titleBilingual, ui.gameDayBilingual]
   );
 
   const handleWhatsAppCopy = useCallback(async () => {
@@ -81,6 +87,156 @@ function ScheduleApp() {
   const handleWhatsAppOpen = useCallback(() => {
     openInWhatsApp(whatsappText());
   }, [whatsappText]);
+
+  /** Листы дня: на экране (isEditing зависит от режима) и для экспорта (всегда просмотр). */
+  function renderDaySheets(isEditing: boolean, refs: DaySheetRefs) {
+    return (
+      <>
+      <ScheduleSheet
+        ui={ui}
+        lang={lang}
+        editing={isEditing}
+        date={day.date}
+        gameDay={day.gameDay === true}
+        schedule={day.schedule}
+        activities={data.activities}
+        splits={data.splits}
+        days={data.days}
+        templates={data.templates ?? []}
+        activeDayId={data.activeDayId}
+        sheetRef={refs.schedule}
+        onAddDay={dayActions.addDay}
+        onAddNext10Days={dayActions.addNext10Days}
+        onPullFromDay={dayActions.pullFromDay}
+        onPullFromTemplate={dayActions.pullFromTemplate}
+        onSaveAsTemplate={library.saveAsTemplate}
+        onRemoveDay={dayActions.removeDay}
+        onDateChange={(value) =>
+          updateActiveDay(
+            (d) => {
+              d.date = value;
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:date` }
+          )
+        }
+        onGameDayChange={(value) =>
+          updateActiveDay(
+            (d) => {
+              if ((d.gameDay === true) === value) return d;
+              d.gameDay = value;
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:gameDay` }
+          )
+        }
+        onRowChange={(index, field, value) =>
+          updateActiveDay(
+            (d) => {
+              d.schedule[index] = { ...d.schedule[index], [field]: value };
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:row:${index}:${String(field)}` }
+          )
+        }
+        onRemoveRow={(index) =>
+          updateActiveDay((d) => {
+            d.schedule.splice(index, 1);
+            return d;
+          })
+        }
+        onMoveRow={(from, to) =>
+          updateActiveDay((d) => {
+            if (
+              from < 0 ||
+              to < 0 ||
+              from >= d.schedule.length ||
+              to >= d.schedule.length ||
+              from === to
+            ) {
+              return d;
+            }
+            const [row] = d.schedule.splice(from, 1);
+            d.schedule.splice(to, 0, row);
+            return d;
+          })
+        }
+        onAddRow={() =>
+          updateActiveDay((d) => {
+            d.schedule.push(emptyScheduleRow());
+            return d;
+          })
+        }
+        onAddSplitRow={() =>
+          updateActiveDay((d) => {
+            d.schedule.push(emptyScheduleRow("split"));
+            return d;
+          })
+        }
+      />
+
+      <div className="page-break" aria-hidden="true" />
+
+      <GroupsSheet
+        ui={ui}
+        lang={lang}
+        editing={isEditing}
+        date={day.date}
+        groups={day.groups}
+        groupsLabelRu={day.groupsLabelRu}
+        groupsLabelEn={day.groupsLabelEn}
+        roster={data.roster}
+        sheetRef={refs.groups}
+        onSelectPlayer={(group, index, playerId) =>
+          updateActiveDay(
+            (d) => {
+              if (d.groups[group][index] === playerId) return d;
+              d.groups[group][index] = playerId;
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:slot:${group}:${index}` }
+          )
+        }
+        onRemovePlayer={(group: GroupKey, index) =>
+          updateActiveDay((d) => {
+            d.groups[group].splice(index, 1);
+            return d;
+          })
+        }
+        onMovePlayer={dayActions.handleMovePlayer}
+        onMovePlayerToGroup={dayActions.handleMovePlayerToGroup}
+        onAddPlayerSlot={(group: GroupKey) =>
+          updateActiveDay((d) => {
+            d.groups[group].push("");
+            return d;
+          })
+        }
+        onGroupNameChange={(field, value) =>
+          updateActiveDay(
+            (d) => {
+              if (d.groups[field] === value) return d;
+              d.groups[field] = value;
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:gname:${String(field)}` }
+          )
+        }
+        onGroupsLabelChange={(labelLang, value) =>
+          updateActiveDay(
+            (d) => {
+              const labelField =
+                labelLang === "ru" ? "groupsLabelRu" : "groupsLabelEn";
+              if (d[labelField] === value) return d;
+              d[labelField] = value;
+              return d;
+            },
+            { coalesceKey: `day:${day.id}:glabel:${labelLang}` }
+          )
+        }
+      />
+      </>
+    );
+  }
 
   return (
     <>
@@ -166,137 +322,7 @@ function ScheduleApp() {
         </div>
       ) : (
         <div className="document" id="page" ref={dayPageRef}>
-          <ScheduleSheet
-            ui={ui}
-            lang={lang}
-            editing={editing}
-            date={day.date}
-            schedule={day.schedule}
-            activities={data.activities}
-            splits={data.splits}
-            days={data.days}
-            templates={data.templates ?? []}
-            activeDayId={data.activeDayId}
-            sheetRef={scheduleRef}
-            onAddDay={dayActions.addDay}
-            onAddNext10Days={dayActions.addNext10Days}
-            onPullFromDay={dayActions.pullFromDay}
-            onPullFromTemplate={dayActions.pullFromTemplate}
-            onSaveAsTemplate={library.saveAsTemplate}
-            onRemoveDay={dayActions.removeDay}
-            onDateChange={(value) =>
-              updateActiveDay(
-                (d) => {
-                  d.date = value;
-                  return d;
-                },
-                { coalesceKey: `day:${day.id}:date` }
-              )
-            }
-            onRowChange={(index, field, value) =>
-              updateActiveDay(
-                (d) => {
-                  d.schedule[index] = { ...d.schedule[index], [field]: value };
-                  return d;
-                },
-                { coalesceKey: `day:${day.id}:row:${index}:${String(field)}` }
-              )
-            }
-            onRemoveRow={(index) =>
-              updateActiveDay((d) => {
-                d.schedule.splice(index, 1);
-                return d;
-              })
-            }
-            onMoveRow={(from, to) =>
-              updateActiveDay((d) => {
-                if (
-                  from < 0 ||
-                  to < 0 ||
-                  from >= d.schedule.length ||
-                  to >= d.schedule.length ||
-                  from === to
-                ) {
-                  return d;
-                }
-                const [row] = d.schedule.splice(from, 1);
-                d.schedule.splice(to, 0, row);
-                return d;
-              })
-            }
-            onAddRow={() =>
-              updateActiveDay((d) => {
-                d.schedule.push(emptyScheduleRow());
-                return d;
-              })
-            }
-            onAddSplitRow={() =>
-              updateActiveDay((d) => {
-                d.schedule.push(emptyScheduleRow("split"));
-                return d;
-              })
-            }
-          />
-
-          <div className="page-break" aria-hidden="true" />
-
-          <GroupsSheet
-            ui={ui}
-            lang={lang}
-            editing={editing}
-            date={day.date}
-            groups={day.groups}
-            groupsLabelRu={day.groupsLabelRu}
-            groupsLabelEn={day.groupsLabelEn}
-            roster={data.roster}
-            sheetRef={groupsRef}
-            onSelectPlayer={(group, index, playerId) =>
-              updateActiveDay(
-                (d) => {
-                  if (d.groups[group][index] === playerId) return d;
-                  d.groups[group][index] = playerId;
-                  return d;
-                },
-                { coalesceKey: `day:${day.id}:slot:${group}:${index}` }
-              )
-            }
-            onRemovePlayer={(group: GroupKey, index) =>
-              updateActiveDay((d) => {
-                d.groups[group].splice(index, 1);
-                return d;
-              })
-            }
-            onMovePlayer={dayActions.handleMovePlayer}
-            onMovePlayerToGroup={dayActions.handleMovePlayerToGroup}
-            onAddPlayerSlot={(group: GroupKey) =>
-              updateActiveDay((d) => {
-                d.groups[group].push("");
-                return d;
-              })
-            }
-            onGroupNameChange={(field, value) =>
-              updateActiveDay(
-                (d) => {
-                  if (d.groups[field] === value) return d;
-                  d.groups[field] = value;
-                  return d;
-                },
-                { coalesceKey: `day:${day.id}:gname:${String(field)}` }
-              )
-            }
-            onGroupsLabelChange={(labelLang, value) =>
-              updateActiveDay(
-                (d) => {
-                  const labelField =
-                    labelLang === "ru" ? "groupsLabelRu" : "groupsLabelEn";
-                  if (d[labelField] === value) return d;
-                  d[labelField] = value;
-                  return d;
-                },
-                { coalesceKey: `day:${day.id}:glabel:${labelLang}` }
-              )
-            }
-          />
+          {renderDaySheets(editing, { schedule: scheduleRef, groups: groupsRef })}
         </div>
       )}
 

@@ -273,6 +273,7 @@ export function emptyDay(date = ""): TrainingDay {
     id: createDayId(),
     date,
     schedule: blankSchedule(),
+    gameDay: false,
     groupsLabelRu: "",
     groupsLabelEn: "",
     groups: {
@@ -490,6 +491,7 @@ function normalizeDay(
     id: typeof day?.id === "string" && day.id ? day.id : createDayId(),
     date: typeof day?.date === "string" ? day.date : "",
     schedule: normalizeSchedule(day?.schedule, fallbackSchedule),
+    gameDay: day?.gameDay === true,
     groupsLabelRu: typeof day?.groupsLabelRu === "string" ? day.groupsLabelRu : "",
     groupsLabelEn: typeof day?.groupsLabelEn === "string" ? day.groupsLabelEn : "",
     groups: {
