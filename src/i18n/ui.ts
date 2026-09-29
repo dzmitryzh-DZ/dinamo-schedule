@@ -10,6 +10,16 @@ export type UiStrings = {
   pdf: string;
   preview: string;
   gameDayLabel: string;
+  exportMenu: string;
+  exportPdfDay: string;
+  exportPdfDayGroups: string;
+  exportPngDay: string;
+  exportPngGroups: string;
+  exportPdfMonth: string;
+  exportPngMonth: string;
+  exportBusy: string;
+  exportDone: string;
+  exportError: string;
   gameDayBilingual: string;
   copySchedule: string;
   copyScheduleDone: string;
@@ -219,6 +229,16 @@ const RU: UiStrings = {
   pdf: "Сохранить PDF",
   preview: "Превью",
   gameDayLabel: "Игровой день",
+  exportMenu: "Сохранить",
+  exportPdfDay: "PDF — расписание дня",
+  exportPdfDayGroups: "PDF — расписание и составы",
+  exportPngDay: "PNG — расписание дня",
+  exportPngGroups: "PNG — составы групп",
+  exportPdfMonth: "PDF — план на месяц",
+  exportPngMonth: "PNG — план на месяц",
+  exportBusy: "Готовлю файл…",
+  exportDone: "Файл сохранён.",
+  exportError: "Не удалось сохранить файл.",
   gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Копировать для WhatsApp",
   copyScheduleDone: "Расписание скопировано.",
@@ -438,6 +458,16 @@ const EN: UiStrings = {
   pdf: "Save PDF",
   preview: "Preview",
   gameDayLabel: "Game day",
+  exportMenu: "Save",
+  exportPdfDay: "PDF — day schedule",
+  exportPdfDayGroups: "PDF — schedule + rosters",
+  exportPngDay: "PNG — day schedule",
+  exportPngGroups: "PNG — group rosters",
+  exportPdfMonth: "PDF — month plan",
+  exportPngMonth: "PNG — month plan",
+  exportBusy: "Preparing file…",
+  exportDone: "File saved.",
+  exportError: "Could not save the file.",
   gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Copy for WhatsApp",
   copyScheduleDone: "Schedule copied.",

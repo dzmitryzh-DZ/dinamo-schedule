@@ -13,6 +13,14 @@ import { useLibraryActions } from "./hooks/useLibraryActions";
 import { useDayActions } from "./hooks/useDayActions";
 import { isAuthenticated } from "./utils/auth";
 import { formatScheduleForMessenger } from "./utils/localize";
+import { ExportStage } from "./components/ExportStage";
+import {
+  dateStamp,
+  exportKindMeta,
+  slugify,
+  type ExportJob,
+  type ExportKind,
+} from "./utils/exportDocument";
 import { copyTextToClipboard, openInWhatsApp } from "./utils/whatsapp";
 
 type DaySheetRefs = {
@@ -55,7 +63,11 @@ function ScheduleApp() {
   const dayPageRef = useRef<HTMLDivElement | null>(null);
   const monthRef = useRef<HTMLElement | null>(null);
   const libraryRef = useRef<HTMLElement | null>(null);
+  const exportScheduleRef = useRef<HTMLElement | null>(null);
+  const exportGroupsRef = useRef<HTMLElement | null>(null);
+  const exportCounter = useRef(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [exportJob, setExportJob] = useState<ExportJob | null>(null);
 
   const day = getActiveDay(data);
   const library = useLibraryActions(store);
@@ -87,6 +99,67 @@ function ScheduleApp() {
   const handleWhatsAppOpen = useCallback(() => {
     openInWhatsApp(whatsappText());
   }, [whatsappText]);
+
+  const hasGroups = [...day.groups.group1, ...day.groups.group2].some((id) =>
+    id.trim()
+  );
+
+  const handleExport = useCallback(
+    (kind: ExportKind) => {
+      if (exportJob) return;
+      const { format, parts } = exportKindMeta(kind);
+      const id = (exportCounter.current += 1);
+      const langClass = `lang-${lang}`;
+      let job: ExportJob;
+
+      if (kind === "month-pdf" || kind === "month-png") {
+        const sheet = monthRef.current;
+        if (!sheet) return;
+        const label = sheet.dataset.monthLabel ?? "";
+        // Клон без кнопок редактирования клеток (они не нужны в файле).
+        const clone = sheet.cloneNode(true) as HTMLElement;
+        clone
+          .querySelectorAll(".month-row-move, .no-print")
+          .forEach((node) => node.remove());
+        job = {
+          id,
+          kind,
+          format,
+          parts,
+          fileBase: `dinamo-month-${slugify(label) || dateStamp("")}`,
+          monthNode: clone,
+          bodyClass: `print-month export-body ${langClass}`,
+        };
+      } else {
+        const suffix =
+          kind === "groups-png"
+            ? "groups"
+            : kind === "day-pdf-groups"
+              ? "schedule-groups"
+              : "schedule";
+        job = {
+          id,
+          kind,
+          format,
+          parts,
+          fileBase: `${dateStamp(day.date)}-dinamo-${suffix}`,
+          bodyClass: `print-day export-body ${langClass}`,
+        };
+      }
+      flash(ui.exportBusy);
+      setExportJob(job);
+    },
+    [exportJob, lang, day.date, flash, ui.exportBusy]
+  );
+
+  const handleExportDone = useCallback(
+    (error: Error | null) => {
+      setExportJob(null);
+      if (error) flash(ui.exportError);
+      else flash(ui.exportDone, true);
+    },
+    [flash, ui.exportDone, ui.exportError]
+  );
 
   /** Листы дня: на экране (isEditing зависит от режима) и для экспорта (всегда просмотр). */
   function renderDaySheets(isEditing: boolean, refs: DaySheetRefs) {
@@ -259,6 +332,9 @@ function ScheduleApp() {
         canRedo={canRedo}
         onUndo={undo}
         onRedo={redo}
+        hasGroups={hasGroups}
+        exporting={exportJob !== null}
+        onExport={handleExport}
       />
 
       <p className={`status${status.ok ? " ok" : ""}`} aria-live="polite">
@@ -327,6 +403,19 @@ function ScheduleApp() {
       )}
 
       <p className="app-credit no-print">{ui.creator}</p>
+
+      {exportJob && (
+        <ExportStage job={exportJob} onDone={handleExportDone}>
+          {!exportJob.monthNode ? (
+            <div className="document">
+              {renderDaySheets(false, {
+                schedule: exportScheduleRef,
+                groups: exportGroupsRef,
+              })}
+            </div>
+          ) : null}
+        </ExportStage>
+      )}
 
       {settingsOpen && (
         <SettingsDialog

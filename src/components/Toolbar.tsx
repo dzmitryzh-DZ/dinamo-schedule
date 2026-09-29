@@ -3,6 +3,8 @@ import type { UiStrings } from "../i18n/ui";
 import type { AppView, Lang, TrainingDay } from "../data/types";
 import type { SyncState } from "../data/yandexSync";
 import { hasYandexToken } from "../data/yandexSync";
+import type { ExportKind } from "../utils/exportDocument";
+import { ExportMenu } from "./ExportMenu";
 import { compareDateRu, parseDateRuToLocal, startOfLocalDay } from "../utils/dates";
 import {
   ChatIcon,
@@ -43,6 +45,9 @@ type Props = {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  hasGroups: boolean;
+  exporting: boolean;
+  onExport: (kind: ExportKind) => void;
 };
 
 export function Toolbar({
@@ -64,6 +69,9 @@ export function Toolbar({
   canRedo,
   onUndo,
   onRedo,
+  hasGroups,
+  exporting,
+  onExport,
 }: Props) {
   const sorted = useMemo(
     () => [...days].sort((a, b) => compareDateRu(a.date, b.date)),
@@ -233,6 +241,14 @@ export function Toolbar({
             <RedoIcon />
           </button>
         </div>
+
+        <ExportMenu
+          ui={ui}
+          view={view}
+          hasGroups={hasGroups}
+          busy={exporting}
+          onExport={onExport}
+        />
 
         {isDay && (
           <div className="btn-group btn-group-whatsapp" role="group">

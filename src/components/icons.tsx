@@ -85,3 +85,21 @@ export function HistoryIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function DownloadIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M4 20h16" />
+    </Icon>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Icon {...props} width="12" height="12" strokeWidth="2.5">
+      <path d="m6 9 6 6 6-6" />
+    </Icon>
+  );
+}

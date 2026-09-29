@@ -529,12 +529,7 @@
   .toolbar-actions {
     margin-left: 0;
     justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .toolbar-actions::-webkit-scrollbar {
-    display: none;
+    flex-wrap: wrap;
   }
 
   .day-picker {
@@ -811,4 +806,126 @@
     justify-self: start;
     margin-left: 0;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Меню «Сохранить» (PDF / PNG)                                        */
+/* ------------------------------------------------------------------ */
+
+.export-menu {
+  position: relative;
+}
+
+.export-menu-panel {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 15.5rem;
+  padding: 0.4rem;
+  background: var(--white);
+  border: 1px solid var(--card-line);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(10, 28, 41, 0.22);
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-family: Manrope, sans-serif;
+  font-weight: 700;
+  font-size: 0.84rem;
+  text-align: left;
+  color: var(--navy);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s var(--ease);
+}
+
+.export-menu-item:hover,
+.export-menu-item:focus-visible {
+  background: var(--ice-soft);
+  outline: none;
+}
+
+.export-menu-format {
+  flex-shrink: 0;
+  min-width: 2.6rem;
+  padding: 0.12rem 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--white);
+  background: var(--navy);
+  border-radius: var(--radius-pill);
+}
+
+.export-menu-item:hover .export-menu-format {
+  background: #12354c;
+}
+
+@media screen and (max-width: 720px) {
+  .export-menu-panel {
+    right: auto;
+    left: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Скрытая область для экспорта: лист A4 альбомный (см. ExportStage)   */
+/* ------------------------------------------------------------------ */
+
+.export-frame {
+  position: fixed;
+  top: 0;
+  left: -20000px;
+  height: 2400px;
+  border: 0;
+  pointer-events: none;
+}
+
+body.export-body {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+body.export-body .document {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+body.export-body .sheet + .sheet {
+  margin-top: 0;
+}
+
+/* Только то, что должно попасть в файл */
+body.export-body .no-print,
+body.export-body .month-row-move {
+  display: none !important;
+}
+
+body.export-body .month-cell.is-today,
+body.export-body .month-cell.is-selected-present {
+  outline: none;
+  box-shadow: none;
+}
+
+body.export-body .month-cell.is-today .month-day-num {
+  background: none;
+  color: var(--navy);
+  padding: 0;
+  top: 0.18rem;
+  left: 0.18rem;
 }
