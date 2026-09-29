@@ -4,6 +4,15 @@ import type { AppView, Lang, TrainingDay } from "../data/types";
 import type { SyncState } from "../data/yandexSync";
 import { hasYandexToken } from "../data/yandexSync";
 import { compareDateRu, parseDateRuToLocal, startOfLocalDay } from "../utils/dates";
+import {
+  ChatIcon,
+  ExternalIcon,
+  EyeIcon,
+  HistoryIcon,
+  RedoIcon,
+  SettingsIcon,
+  UndoIcon,
+} from "./icons";
 
 const SHOW_PAST_KEY = "dinamo-schedule-show-past";
 
@@ -153,13 +162,16 @@ export function Toolbar({
             {hasHiddenPast && (
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-ghost btn-past"
                 aria-pressed={showPast}
                 title={showPast ? ui.hidePastDays : ui.showPastDays}
                 aria-label={showPast ? ui.hidePastDays : ui.showPastDays}
                 onClick={toggleShowPast}
               >
-                {showPast ? ui.hidePastDays : ui.showPastDays}
+                <HistoryIcon />
+                <span className="btn-label">
+                  {showPast ? ui.hidePastDays : ui.showPastDays}
+                </span>
               </button>
             )}
           </>
@@ -186,66 +198,74 @@ export function Toolbar({
       </div>
 
       <div className="toolbar-actions">
+        {view !== "library" && (
+          <button
+            type="button"
+            className={`btn btn-icon-text${preview ? " is-active" : ""}`}
+            aria-pressed={preview}
+            title={ui.preview}
+            onClick={onPreviewToggle}
+          >
+            <EyeIcon />
+            <span className="btn-label">{ui.preview}</span>
+          </button>
+        )}
+
+        <div className="btn-group" role="group" aria-label={`${ui.undoLabel} / ${ui.redoLabel}`}>
+          <button
+            type="button"
+            className="btn btn-icon"
+            disabled={!canUndo}
+            title={ui.undoLabel}
+            aria-label={ui.undoLabel}
+            onClick={onUndo}
+          >
+            <UndoIcon />
+          </button>
+          <button
+            type="button"
+            className="btn btn-icon"
+            disabled={!canRedo}
+            title={ui.redoLabel}
+            aria-label={ui.redoLabel}
+            onClick={onRedo}
+          >
+            <RedoIcon />
+          </button>
+        </div>
+
         {isDay && (
-          <>
+          <div className="btn-group btn-group-whatsapp" role="group">
             <button
               type="button"
-              className="btn btn-whatsapp"
+              className="btn btn-whatsapp btn-icon-text"
               title={ui.whatsappCopied}
               onClick={onWhatsAppCopy}
             >
-              {ui.whatsappCopy}
+              <ChatIcon />
+              <span className="btn-label">{ui.whatsappCopy}</span>
             </button>
             <button
               type="button"
-              className="btn btn-whatsapp-outline"
+              className="btn btn-whatsapp-outline btn-icon"
               title={ui.whatsappOpen}
               aria-label={ui.whatsappOpen}
               onClick={onWhatsAppOpen}
             >
-              ↗
+              <ExternalIcon />
             </button>
-          </>
+          </div>
         )}
-        {view !== "library" && (
-          <button
-            type="button"
-            className={`btn${preview ? " is-active" : ""}`}
-            aria-pressed={preview}
-            onClick={onPreviewToggle}
-          >
-            {ui.preview}
-          </button>
-        )}
-        <button
-          type="button"
-          className="btn"
-          disabled={!canUndo}
-          title={ui.undoLabel}
-          aria-label={ui.undoLabel}
-          onClick={onUndo}
-        >
-          ↶
-        </button>
-        <button
-          type="button"
-          className="btn"
-          disabled={!canRedo}
-          title={ui.redoLabel}
-          aria-label={ui.redoLabel}
-          onClick={onRedo}
-        >
-          ↷
-        </button>
+
         <span className="toolbar-sep" aria-hidden="true" />
         <button
           type="button"
-          className={`btn${noToken ? " btn-attention" : ""}`}
-          title={ui.settings}
+          className={`btn btn-icon${noToken ? " btn-attention" : ""}`}
+          title={noToken ? `${ui.settings} — ${ui.syncLocalOnly}` : ui.settings}
           aria-label={ui.settings}
           onClick={onOpenSettings}
         >
-          ⚙
+          <SettingsIcon />
         </button>
       </div>
     </div>

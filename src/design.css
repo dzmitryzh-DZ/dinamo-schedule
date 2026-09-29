@@ -1,0 +1,712 @@
+/*
+ * Визуальная доработка интерфейса (вариант A «Чистка»).
+ * Подключается после index.css и переопределяет отдельные правила.
+ * Палитра, шапки документов и печатные стили (@media print) не меняются.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Панель инструментов                                                 */
+/* ------------------------------------------------------------------ */
+
+@media screen {
+  .toolbar {
+    position: sticky;
+    top: 0.6rem;
+    z-index: 30;
+    gap: 0.5rem 0.75rem;
+    padding: 0.55rem 0.7rem;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(91, 178, 232, 0.28);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .toolbar-left {
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .toolbar-actions {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+  }
+
+  .toolbar-sep {
+    margin: 0.3rem 0.1rem;
+  }
+
+  /* Кнопки панели: единая высота */
+  .toolbar .btn,
+  .toolbar .lang-switch button,
+  .toolbar .view-switch button {
+    min-height: 2.15rem;
+  }
+
+  .toolbar .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    white-space: nowrap;
+  }
+
+  .toolbar .btn-icon {
+    width: 2.15rem;
+    padding: 0;
+  }
+
+  .toolbar .icon {
+    flex-shrink: 0;
+  }
+
+  /* Переключатели RU/EN и День/Месяц — сегменты */
+  .lang-switch,
+  .view-switch {
+    padding: 2px;
+    border-color: var(--card-line);
+    gap: 2px;
+  }
+
+  .lang-switch button,
+  .view-switch button {
+    border-radius: var(--radius-pill);
+  }
+
+  .lang-switch button.active,
+  .view-switch button.active {
+    background: var(--navy);
+    color: var(--white);
+    box-shadow: none;
+  }
+
+  /* Кнопки-группы (отмена/возврат, WhatsApp) */
+  .btn-group {
+    display: inline-flex;
+  }
+
+  .btn-group > .btn {
+    border-radius: 0;
+  }
+
+  .btn-group > .btn:first-child {
+    border-top-left-radius: var(--radius-pill);
+    border-bottom-left-radius: var(--radius-pill);
+  }
+
+  .btn-group > .btn:last-child {
+    border-top-right-radius: var(--radius-pill);
+    border-bottom-right-radius: var(--radius-pill);
+  }
+
+  .btn-group > .btn + .btn {
+    margin-left: -1px;
+  }
+
+  .toolbar .btn-group > .btn:first-child:not(.btn-icon) {
+    padding-left: 0.95rem;
+  }
+
+  .btn-whatsapp {
+    color: #04240f;
+  }
+
+  .btn-whatsapp-outline {
+    color: #14a04c;
+  }
+
+  /* Заблокированные «Отменить/Вернуть» видны, но явно неактивны */
+  .toolbar .btn:disabled {
+    opacity: 1;
+    color: #a9b6c0;
+    background: var(--paper);
+    border-color: var(--card-line);
+  }
+
+  .btn.is-active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+    box-shadow: none;
+  }
+
+  .btn.is-active:hover:not(:disabled) {
+    background: #12354c;
+    border-color: #12354c;
+    color: var(--white);
+  }
+
+  /* «Показать прошедшие» — тихая кнопка */
+  .btn-past,
+  .toolbar .btn-past {
+    width: 2.15rem;
+    padding: 0;
+    border-color: transparent;
+    color: var(--muted);
+  }
+
+  .btn-past .btn-label {
+    display: none;
+  }
+
+  .btn-past[aria-pressed="true"] {
+    color: var(--navy);
+    background: var(--ice-soft);
+    border-color: var(--ice-line);
+  }
+
+  .btn-past:hover:not(:disabled) {
+    color: var(--navy);
+    background: var(--paper);
+    border-color: var(--card-line);
+  }
+
+  /* Выбор дня */
+  .day-picker {
+    padding: 0.1rem 0.6rem 0.1rem 0.8rem;
+  }
+
+  /* Индикатор синхронизации: точка + текст */
+  .sync-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border-color: transparent;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .sync-badge::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .sync-badge.is-local {
+    color: #9a6b12;
+  }
+
+  /* Кнопка настроек: красная только когда нет токена */
+  .btn-attention {
+    position: relative;
+    color: var(--danger);
+    border-color: rgba(232, 93, 76, 0.45);
+    background: #fff6f4;
+  }
+
+  .btn-attention::after {
+    content: "";
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 0 2px #fff;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Общие мелочи                                                        */
+/* ------------------------------------------------------------------ */
+
+.app-credit {
+  color: rgba(217, 242, 251, 0.62);
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--ice);
+  box-shadow: 0 0 0 3px rgba(91, 178, 232, 0.28);
+}
+
+/* Меню «Действия с днём» */
+.day-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.day-menu > summary::after {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.18s var(--ease);
+}
+
+.day-menu[open] > summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Режим редактирования: поля становятся тише                          */
+/* ------------------------------------------------------------------ */
+
+@media screen {
+  .schedule input,
+  .player-fields input,
+  .player-select,
+  .activity-select,
+  .activity-input,
+  .group-title-input,
+  .groups-label-input {
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0.72);
+    transition:
+      border-color 0.15s var(--ease),
+      background 0.15s var(--ease),
+      box-shadow 0.15s var(--ease);
+  }
+
+  .schedule input:hover,
+  .player-fields input:hover,
+  .player-select:hover,
+  .activity-select:hover,
+  .activity-input:hover,
+  .group-title-input:hover,
+  .groups-label-input:hover {
+    border-color: var(--ice-line);
+    background: var(--white);
+  }
+
+  .schedule input:focus,
+  .player-fields input:focus,
+  .player-select:focus,
+  .activity-select:focus,
+  .activity-input:focus,
+  .group-title-input:focus,
+  .groups-label-input:focus {
+    border-color: var(--ice);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(91, 178, 232, 0.22);
+  }
+
+  /* Пустое время — тонкая пунктирная рамка вместо «коробки» */
+  .schedule .col-time input:placeholder-shown {
+    border: 1px dashed var(--ice-line);
+    background: transparent;
+  }
+
+  .schedule .col-time input:placeholder-shown:focus,
+  .schedule .col-time input:placeholder-shown:hover {
+    border-style: solid;
+    background: var(--white);
+  }
+
+  .schedule input::placeholder,
+  .activity-input::placeholder {
+    color: #97a6b2;
+  }
+
+  /* Ячейки таблицы: мягче линии */
+  .schedule tbody td {
+    border-color: #e9f0f5;
+  }
+
+  /* Подписи-теги «ИГРОВОЙ ДЕНЬ» / «ТРЕНИРОВОЧНЫЕ ГРУППЫ» */
+  .groups-label-input {
+    background: var(--ice-soft);
+    color: #2b86bd;
+    border-radius: var(--radius-pill);
+    padding: 0.32rem 0.8rem;
+  }
+
+  .groups-label-input:hover {
+    background: #d7effb;
+  }
+
+  .group-title-input {
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+  }
+}
+
+/* Кнопки управления строкой: крупнее цель нажатия, тише вид */
+.row-actions {
+  gap: 0.1rem;
+}
+
+.row-btn {
+  min-width: 1.6rem;
+  min-height: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.row-btn:hover:not(:disabled) {
+  background: rgba(10, 28, 41, 0.07);
+}
+
+.row-btn:not(.row-btn-move):hover:not(:disabled) {
+  background: rgba(232, 93, 76, 0.12);
+}
+
+@media screen and (hover: hover) {
+  .schedule tbody tr:not(:hover):not(:focus-within) .row-btn-move,
+  .schedule tbody tr:not(:hover):not(:focus-within) .drag-handle {
+    opacity: 0.45;
+  }
+
+  .group-card li:not(:hover):not(:focus-within) .row-btn-move {
+    opacity: 0.45;
+  }
+}
+
+/* «Добавить …» — пунктирные кнопки-плейсхолдеры */
+.schedule-add-actions {
+  margin-top: 0.75rem;
+}
+
+.schedule-add-actions .btn,
+.group-card .add-row {
+  border-style: dashed;
+  border-color: var(--ice-line);
+  background: transparent;
+  color: #2b86bd;
+}
+
+.schedule-add-actions .btn:hover,
+.group-card .add-row:hover {
+  border-style: solid;
+  background: var(--ice-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* Месяц                                                               */
+/* ------------------------------------------------------------------ */
+
+/* Список активностей — сворачиваемый блок */
+.month-activity-picker > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+  user-select: none;
+}
+
+.month-activity-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.month-activity-picker > summary::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-135deg) translateY(-2px);
+  transition: transform 0.18s var(--ease);
+}
+
+.month-activity-picker:not([open]) > summary::after {
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.month-activity-picker[open] > summary {
+  margin-bottom: 0.7rem;
+}
+
+/* Сетка: мягкие линии вместо тяжёлого серо-синего */
+.month-board {
+  border-color: #c3d2dc;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.month-header {
+  border-bottom-color: #c3d2dc;
+  padding: 0.7rem 0.6rem;
+}
+
+.month-grid {
+  background: #d3dee6;
+}
+
+.month-nav .btn {
+  border-radius: var(--radius-sm);
+  border-color: #c3d2dc;
+}
+
+.month-weekday {
+  background: var(--paper);
+  color: #4d6070;
+  padding: 0.45rem 0;
+}
+
+.month-cell {
+  min-height: 8rem;
+  padding-top: 1.55rem;
+}
+
+/* Дни соседних месяцев: светлые, а не тёмные */
+.month-cell.out-month {
+  opacity: 1;
+  background: #f4f7fa;
+}
+
+.month-cell.out-month > * {
+  opacity: 0.4;
+}
+
+.month-cell.is-today {
+  outline-width: 2px;
+}
+
+.month-day-num {
+  font-size: 0.9rem;
+}
+
+.month-cell.is-today .month-day-num {
+  background: var(--ice);
+  color: var(--white);
+  border-radius: var(--radius-pill);
+  padding: 0.16rem 0.4rem;
+  top: 0.22rem;
+  left: 0.22rem;
+}
+
+.month-watermark {
+  opacity: 0.06;
+}
+
+/* Легенда и аэропорты — компактнее */
+.month-legend,
+.month-airports {
+  padding-top: 0.2rem;
+}
+
+/* Уведомление об изменениях — заметное, но без крика */
+.month-change-notice {
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(211, 47, 47, 0.28);
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Мобильная версия                                                    */
+/* ------------------------------------------------------------------ */
+
+@media screen and (max-width: 720px) {
+  body {
+    padding: 0.75rem 0.6rem 2rem;
+  }
+
+  .toolbar {
+    top: 0.4rem;
+    padding: 0.5rem;
+    border-radius: 14px;
+  }
+
+  .toolbar-left,
+  .toolbar-actions {
+    width: 100%;
+  }
+
+  .toolbar-left {
+    gap: 0.4rem;
+  }
+
+  .toolbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .toolbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .day-picker {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    order: 3;
+  }
+
+  .day-picker select {
+    flex: 1;
+  }
+
+  .sync-badge {
+    order: 4;
+  }
+
+  .btn-past {
+    order: 5;
+    margin-left: auto;
+  }
+
+  .toolbar .btn-icon-text .btn-label {
+    display: none;
+  }
+
+  .toolbar .btn-icon-text {
+    width: 2.15rem;
+    padding: 0;
+  }
+
+  /* WhatsApp остаётся с подписью */
+  .toolbar .btn-whatsapp.btn-icon-text {
+    width: auto;
+    padding: 0.3rem 0.8rem;
+  }
+
+  .toolbar .btn-whatsapp.btn-icon-text .btn-label {
+    display: inline;
+  }
+
+  /* Шапка документа: компактная, дата справа */
+  .header {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .header-left {
+    gap: 0.7rem;
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .club {
+    font-size: 1rem;
+  }
+
+  .doc-title {
+    font-size: 0.8rem;
+  }
+
+  .date-block {
+    width: auto;
+    padding-left: 0;
+    text-align: right;
+  }
+
+  .date-value {
+    font-size: 1.05rem;
+  }
+
+  .date-value input {
+    width: 6.6rem;
+    font-size: 1rem;
+  }
+
+  .content {
+    padding: 1rem 0.9rem 1.3rem;
+  }
+
+  /* Таблица расписания в режиме редактирования — карточками */
+  .schedule:has(.col-actions),
+  .schedule:has(.col-actions) tbody {
+    display: block;
+  }
+
+  .schedule tbody tr:has(.col-actions) {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 0.45rem;
+    align-items: start;
+    padding: 0.6rem 0.6rem 0.4rem;
+    border-bottom: 1px solid var(--card-line);
+    background: var(--row-bg, transparent);
+  }
+
+  .schedule tbody tr:has(.col-actions):nth-child(even):not([class*="row-color-"]) {
+    background: var(--zebra);
+  }
+
+  .schedule tbody tr[class*="row-color-"]:has(.col-actions) {
+    box-shadow: inset 4px 0 0 var(--row-accent);
+  }
+
+  .schedule tbody tr:has(.col-actions) td,
+  .schedule tbody tr[class*="row-color-"]:has(.col-actions) td:first-child {
+    display: block;
+    width: auto !important;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent !important;
+  }
+
+  .schedule tbody tr:has(.col-actions) td.col-time:empty {
+    display: none;
+  }
+
+  .schedule tbody tr:has(.col-actions) td.col-note,
+  .schedule tbody tr:has(.col-actions) td.col-activity-split {
+    grid-column: 1 / -1;
+  }
+
+  .schedule tbody tr:has(.col-actions) td.col-actions {
+    grid-column: 1 / -1;
+    border-top: 1px dashed rgba(10, 28, 41, 0.12);
+    padding-top: 0.3rem;
+  }
+
+  .schedule tbody tr:has(.col-actions) .row-actions {
+    justify-content: space-between;
+    flex-wrap: nowrap;
+  }
+
+  .schedule tbody tr:has(.col-actions) .row-color-picker {
+    min-width: 0;
+    flex: 1;
+    margin: 0 0.4rem;
+  }
+
+  .schedule tbody tr:has(.col-actions) .row-btn {
+    min-width: 2.1rem;
+    min-height: 2.1rem;
+  }
+
+  .month-cell {
+    min-height: 5.6rem;
+  }
+}
+
+/* На сенсорных экранах управление строкой всегда видно */
+@media (hover: none) {
+  .row-btn-move,
+  .drag-handle {
+    opacity: 1 !important;
+  }
+}
+
+/* В печатном документе отметка «сегодня» не нужна */
+@media print {
+  .month-cell.is-today {
+    outline: none;
+  }
+
+  .month-cell.is-today .month-day-num {
+    background: none;
+    color: var(--navy);
+    padding: 0;
+    top: 0.3rem;
+    left: 0.32rem;
+  }
+}

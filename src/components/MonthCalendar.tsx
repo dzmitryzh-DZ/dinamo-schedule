@@ -316,8 +316,8 @@ export function MonthCalendar({
       ) : null}
       <div className="content month-content">
         {editing && (
-          <div className="month-activity-picker no-print" aria-label={ui.activityList}>
-            <p className="section-label">{ui.activityList}</p>
+          <details className="month-activity-picker no-print" open>
+            <summary className="section-label">{ui.activityList}</summary>
             <div className="month-activity-list" role="radiogroup" aria-label={ui.activityList}>
               {orderedActivityIds.map((id) => {
                 if (id === "flight") {
@@ -526,7 +526,7 @@ export function MonthCalendar({
             )}
 
             <p className="month-hint">{ui.calendarHint}</p>
-          </div>
+          </details>
         )}
 
         <div className="month-board">
