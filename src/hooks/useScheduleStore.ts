@@ -10,10 +10,20 @@ import {
 import {
   clearSharedProject,
   fetchSharedProject,
+  hasYandexToken,
   hydrateStore,
   persistStore,
+  autoBackupEnabled,
+  createBackup,
+  deleteBackup,
+  listBackups,
+  maybeAutoBackup,
+  probeSharedMeta,
   pullIfSharedNewer,
+  restoreBackup,
+  setAutoBackupEnabled,
   stashConflictStore,
+  type BackupInfo,
   type SyncState,
 } from "../data/yandexSync";
 import type { AppView, Lang, ScheduleStore, TrainingDay } from "../data/types";
@@ -33,6 +43,8 @@ export type StatusMessage = { text: string; ok?: boolean };
 
 const PERSIST_DEBOUNCE_MS = 400;
 const COALESCE_MS = 800;
+/** Background poll of the shared file revision while the tab is visible. */
+const POLL_INTERVAL_MS = 30_000;
 const HISTORY_LIMIT = 50;
 
 export type MutateOptions = {
@@ -180,18 +192,12 @@ export function useScheduleStore() {
           dirtyRef.current = false;
           if (result.rev !== null) baseRevRef.current = result.rev;
           finalSync = "synced";
+          void maybeAutoBackup(dataRef.current);
         } else if (result.conflict) {
-          // 409: stash the local copy for the user, adopt the server version.
+          // 409: stash the local copy, keep local edits on screen.
+          // The user chooses in the conflict dialog (resolveConflict).
           stashConflictStore(dataRef.current);
-          const shared = await fetchSharedProject();
-          if (shared.status === "ok") {
-            baseRevRef.current = shared.rev;
-            dirtyRef.current = false;
-            coalesceRef.current = null;
-            applyStore(shared.store);
-          } else if (result.rev !== null) {
-            baseRevRef.current = result.rev;
-          }
+          if (result.rev !== null) baseRevRef.current = result.rev;
           finalSync = "conflict";
           break;
         } else {
@@ -542,12 +548,166 @@ export function useScheduleStore() {
     }
   }, [mutateStore, queueNetworkPersist, ui.confirmReset, ui.resetDone]);
 
+  // --- background polling: notice edits made on another device ---
+  const [conflictOpen, setConflictOpen] = useState(false);
+  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
+  const lastSyncAtRef = useRef<number | null>(null);
+  const markSyncedAt = useCallback(() => {
+    lastSyncAtRef.current = Date.now();
+    setLastSyncAt(lastSyncAtRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (sync === "synced") markSyncedAt();
+    if (sync === "conflict") setConflictOpen(true);
+  }, [sync, markSyncedAt]);
+
+  useEffect(() => {
+    if (!hasYandexToken()) return;
+    let cancelled = false;
+    const timer = window.setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      if (inFlightRef.current || dirtyRef.current) return;
+      const meta = await probeSharedMeta();
+      if (cancelled || meta === "unreachable" || meta === "missing") return;
+      if (baseRevRef.current === null) return;
+      if (meta.rev !== null && meta.rev !== baseRevRef.current) {
+        const pulled = await pullIfSharedNewer(baseRevRef.current);
+        if (cancelled || !pulled) return;
+        baseRevRef.current = pulled.rev;
+        coalesceRef.current = null;
+        applyStore(pulled.store);
+        setSync("synced");
+        flash(getUi(readLang()).syncUpdated, true);
+      }
+    }, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [applyStore, flash, setSync]);
+
+  const syncNow = useCallback(async () => {
+    await flushPersist();
+    if (dirtyRef.current) return; // conflict or offline: badge explains
+    const pulled = await pullIfSharedNewer(baseRevRef.current);
+    if (pulled) {
+      baseRevRef.current = pulled.rev;
+      coalesceRef.current = null;
+      applyStore(pulled.store);
+      setSync("synced");
+      flash(getUi(readLang()).syncUpdated, true);
+    } else {
+      flash(getUi(readLang()).syncSaved, true);
+    }
+  }, [applyStore, flash, flushPersist, setSync]);
+
+  /** Force-push local data over the shared file (conflict resolution). */
+  const queueNetworkPersistForced = useCallback(async (): Promise<boolean> => {
+    try {
+      const result = await persistStore(dataRef.current, baseRevRef.current, {
+        force: true,
+      });
+      if (result.sync === "synced") {
+        dirtyRef.current = false;
+        if (result.rev !== null) baseRevRef.current = result.rev;
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  /** Диалог конфликта: «мои правки» побеждают или «версия с Диска». */
+  const resolveConflict = useCallback(
+    async (choice: "local" | "shared") => {
+      if (choice === "local") {
+        const shared = await fetchSharedProject();
+        const rev = shared.status === "ok" || shared.status === "unsupported" ? shared.rev : null;
+        baseRevRef.current = rev;
+        dirtyRef.current = true;
+        const pushed = await queueNetworkPersistForced();
+        setConflictOpen(false);
+        if (pushed) {
+          setSync("synced");
+          flash(getUi(readLang()).conflictLocalSent, true);
+        } else {
+          setSync("error");
+          flash(getUi(readLang()).exportError, false);
+        }
+        return;
+      }
+      const shared = await fetchSharedProject();
+      if (shared.status === "ok") {
+        stashConflictStore(dataRef.current); // local stays recoverable
+        baseRevRef.current = shared.rev;
+        dirtyRef.current = false;
+        coalesceRef.current = null;
+        applyStore(shared.store);
+        setSync("synced");
+        flash(getUi(readLang()).conflictSharedLoaded, true);
+      } else {
+        flash(getUi(readLang()).exportError, false);
+      }
+      setConflictOpen(false);
+    },
+    [applyStore, flash, queueNetworkPersistForced, setSync]
+  );
+
+  // --- backups ---
+  const [backups, setBackups] = useState<BackupInfo[] | null>(null);
+  const [autoBackup, setAutoBackupState] = useState(autoBackupEnabled);
+  const refreshBackups = useCallback(async () => {
+    setBackups(await listBackups());
+  }, []);
+  const makeBackup = useCallback(async () => {
+    const name = await createBackup(dataRef.current);
+    await refreshBackups();
+    return name;
+  }, [refreshBackups]);
+  const restoreFromBackup = useCallback(
+    async (name: string) => {
+      const store = await restoreBackup(name);
+      stashConflictStore(dataRef.current); // текущая версия остаётся в stash
+      applyStore(store);
+      dirtyRef.current = true;
+      const ok = await queueNetworkPersistForced();
+      setSync(ok ? "synced" : "local-only");
+      await refreshBackups();
+    },
+    [applyStore, queueNetworkPersistForced, refreshBackups, setSync]
+  );
+  const removeBackup = useCallback(
+    async (name: string) => {
+      await deleteBackup(name);
+      await refreshBackups();
+    },
+    [refreshBackups]
+  );
+  const toggleAutoBackup = useCallback((on: boolean) => {
+    setAutoBackupEnabled(on);
+    setAutoBackupState(on);
+  }, []);
+
   return {
     lang,
     view,
     data,
     status,
     sync,
+    lastSyncAt,
+    conflictOpen,
+    setConflictOpen,
+    syncNow,
+    resolveConflict,
+    backups,
+    refreshBackups,
+    makeBackup,
+    restoreFromBackup,
+    removeBackup,
+    autoBackup,
+    toggleAutoBackup,
     preview,
     editing,
     ui,

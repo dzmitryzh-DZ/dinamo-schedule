@@ -6,6 +6,7 @@ import { MonthCalendar } from "./components/MonthCalendar";
 import { LibrarySheet } from "./components/LibrarySheet";
 import { LoginGate } from "./components/LoginGate";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { ConflictDialog } from "./components/ConflictDialog";
 import { emptyScheduleRow, getActiveDay } from "./data/storage";
 import type { GroupKey } from "./data/types";
 import { useScheduleStore } from "./hooks/useScheduleStore";
@@ -50,6 +51,18 @@ function ScheduleApp() {
     undo,
     redo,
     flash,
+    lastSyncAt,
+    conflictOpen,
+    setConflictOpen,
+    syncNow,
+    resolveConflict,
+    backups,
+    refreshBackups,
+    makeBackup,
+    restoreFromBackup,
+    removeBackup,
+    autoBackup,
+    toggleAutoBackup,
     handleLangChange,
     handleViewChange,
     handlePreviewToggle,
@@ -327,7 +340,10 @@ function ScheduleApp() {
         onWhatsAppCopy={handleWhatsAppCopy}
         onWhatsAppOpen={handleWhatsAppOpen}
         onPreviewToggle={handlePreviewToggle}
-        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSettings={() => {
+          setSettingsOpen(true);
+          void refreshBackups();
+        }}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={undo}
@@ -335,6 +351,11 @@ function ScheduleApp() {
         hasGroups={hasGroups}
         exporting={exportJob !== null}
         onExport={handleExport}
+        lastSyncAt={lastSyncAt}
+        onSyncNow={() => {
+          if (sync === "conflict") setConflictOpen(true);
+          else void syncNow();
+        }}
       />
 
       <p className={`status${status.ok ? " ok" : ""}`} aria-live="polite">
@@ -417,6 +438,14 @@ function ScheduleApp() {
         </ExportStage>
       )}
 
+      {conflictOpen && (
+        <ConflictDialog
+          ui={ui}
+          onClose={() => setConflictOpen(false)}
+          onResolve={(choice) => void resolveConflict(choice)}
+        />
+      )}
+
       {settingsOpen && (
         <SettingsDialog
           ui={ui}
@@ -425,6 +454,13 @@ function ScheduleApp() {
             setSettingsOpen(false);
             handleViewChange("library");
           }}
+          backups={backups}
+          autoBackup={autoBackup}
+          onRefreshBackups={refreshBackups}
+          onCreateBackup={makeBackup}
+          onRestoreBackup={restoreFromBackup}
+          onDeleteBackup={removeBackup}
+          onToggleAutoBackup={toggleAutoBackup}
         />
       )}
     </>

@@ -20,6 +20,23 @@ export type UiStrings = {
   exportBusy: string;
   exportDone: string;
   exportError: string;
+  syncNow: string;
+  conflictTitle: string;
+  conflictText: string;
+  conflictLocal: string;
+  conflictShared: string;
+  conflictLocalSent: string;
+  conflictSharedLoaded: string;
+  backupsTitle: string;
+  backupCreate: string;
+  backupCreated: string;
+  backupRestore: string;
+  backupRestored: string;
+  backupDelete: string;
+  backupAuto: string;
+  backupAutoHint: string;
+  backupNone: string;
+  backupError: string;
   gameDayBilingual: string;
   copySchedule: string;
   copyScheduleDone: string;
@@ -239,6 +256,23 @@ const RU: UiStrings = {
   exportBusy: "Готовлю файл…",
   exportDone: "Файл сохранён.",
   exportError: "Не удалось сохранить файл.",
+  syncNow: "Синхронизировать сейчас",
+  conflictTitle: "Конфликт версий",
+  conflictText: "Расписание изменилось на другом устройстве, пока вы редактировали здесь. Выберите, какую версию оставить.",
+  conflictLocal: "Отправить мои правки",
+  conflictShared: "Загрузить версию с Диска",
+  conflictLocalSent: "Ваши правки отправлены на Диск.",
+  conflictSharedLoaded: "Загружена версия с Диска. Ваши правки сохранены в резервную копию.",
+  backupsTitle: "Резервные копии",
+  backupCreate: "Создать копию",
+  backupCreated: "Копия создана.",
+  backupRestore: "Восстановить",
+  backupRestored: "Расписание восстановлено из копии.",
+  backupDelete: "Удалить",
+  backupAuto: "Автокопия раз в сутки",
+  backupAutoHint: "После успешной синхронизации создаётся копия в app:/backups, хранятся последние 14.",
+  backupNone: "Копий пока нет.",
+  backupError: "Не удалось выполнить операцию с копиями.",
   gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Копировать для WhatsApp",
   copyScheduleDone: "Расписание скопировано.",
@@ -468,6 +502,23 @@ const EN: UiStrings = {
   exportBusy: "Preparing file…",
   exportDone: "File saved.",
   exportError: "Could not save the file.",
+  syncNow: "Sync now",
+  conflictTitle: "Version conflict",
+  conflictText: "The schedule changed on another device while you were editing here. Choose which version to keep.",
+  conflictLocal: "Send my changes",
+  conflictShared: "Load the Disk version",
+  conflictLocalSent: "Your changes were sent to the Disk.",
+  conflictSharedLoaded: "Loaded the Disk version. Your changes were kept as a backup.",
+  backupsTitle: "Backups",
+  backupCreate: "Create backup",
+  backupCreated: "Backup created.",
+  backupRestore: "Restore",
+  backupRestored: "Schedule restored from the backup.",
+  backupDelete: "Delete",
+  backupAuto: "Daily auto-backup",
+  backupAutoHint: "After a successful sync a copy is saved to app:/backups; the last 14 are kept.",
+  backupNone: "No backups yet.",
+  backupError: "Backup operation failed.",
   gameDayBilingual: "ИГРОВОЙ ДЕНЬ / GAME DAY",
   copySchedule: "Copy for WhatsApp",
   copyScheduleDone: "Schedule copied.",

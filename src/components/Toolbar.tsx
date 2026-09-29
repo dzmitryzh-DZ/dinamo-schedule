@@ -47,6 +47,8 @@ type Props = {
   onRedo: () => void;
   hasGroups: boolean;
   exporting: boolean;
+  lastSyncAt: number | null;
+  onSyncNow: () => void;
   onExport: (kind: ExportKind) => void;
 };
 
@@ -72,6 +74,8 @@ export function Toolbar({
   hasGroups,
   exporting,
   onExport,
+  lastSyncAt,
+  onSyncNow,
 }: Props) {
   const sorted = useMemo(
     () => [...days].sort((a, b) => compareDateRu(a.date, b.date)),
@@ -186,22 +190,40 @@ export function Toolbar({
         )}
 
         {sync !== "idle" && (
-          <span
+          <button
+            type="button"
             className={`sync-badge${conflict ? " is-conflict" : localOnly ? " is-local" : ""}`}
             title={
               conflict
                 ? ui.syncConflict
                 : localOnly
                   ? ui.syncLocalOnly
-                  : ui.syncSaved
+                  : `${ui.syncSaved}${
+                      lastSyncAt
+                        ? " · " +
+                          new Date(lastSyncAt).toLocaleTimeString(undefined, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : ""
+                    } — ${ui.syncNow}`
             }
+            onClick={onSyncNow}
           >
             {conflict
               ? ui.syncBadgeConflict
               : localOnly
                 ? ui.syncBadgeLocal
-                : ui.syncBadgeSynced}
-          </span>
+                : `${ui.syncBadgeSynced}${
+                    lastSyncAt
+                      ? " · " +
+                        new Date(lastSyncAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : ""
+                  }`}
+          </button>
         )}
       </div>
 
